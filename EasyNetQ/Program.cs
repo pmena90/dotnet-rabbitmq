@@ -1,54 +1,35 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Domain.Entities;
+using Application.Common;
+using EasyNetQ_Sender;
 using Infrastructure.Common;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var _messageService = new EasyQueueService();
+using IHost host = CreateHostBuilder(args).Build();
+using var scope = host.Services.CreateScope();
 
-// SendReceive simple pattern
-for (int i = 0; i < 10; i++)
+var services = scope.ServiceProvider;
+
+try
 {
-    var m = new TextMessage
-    {
-        Id = i,
-        Text = i + "Hello from EasyNetq",
-    };
-
-    await _messageService.PubSubPublishAsync(m);
+    await services.GetRequiredService<App>().RunAsync(args);
+}
+catch (Exception e)
+{
+    Console.WriteLine(e.Message);
 }
 
-var m2 = new CardPaymentRequestMessage
+IHostBuilder CreateHostBuilder(string[] strings)
 {
-    Id = 1,
-    Amount = 1,
-    CardHolderName = "Pavel",
-    CardNumber = "4242 4242 4242 4242",
-    ExpiryDate = "11/24"
-};
-
-await _messageService.PubSubPublishAsync(m2);
-
-// RPC pattern
-var message = new RpcRequestMessage
-{
-    Id = 111,
-    Text = "Hello waitting response",
-};
-
-await _messageService.RpcRequestAsync(message);
-
-// Send Receive pattern
-var textMessagte = new TextMessage
-{
-    Id = 1,
-    Text = "Hello from EasyNetq",
-};
-
-await _messageService.SendReceiveSendAsync(m2);
-await _messageService.SendReceiveSendAsync(textMessagte);
-await _messageService.SendReceiveSendAsync(m2);
-
-// publish to a topic
-//await _messageService.PubSubPublishAsync(m2, "payment.cardpayment");
-
-Console.WriteLine("Press a key for exit");
-Console.Read();
+    return Host.CreateDefaultBuilder()
+        .ConfigureServices((_, services) =>
+        {
+            services.AddSingleton<IMessageService, EasyQueueService>();
+            services.AddSingleton<App>();
+        })
+        .ConfigureAppConfiguration(app =>
+        {
+            app.AddJsonFile("appsettings.json");
+        });
+}

@@ -1,8 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
-
 using Infrastructure.Common;
+using Microsoft.Extensions.Configuration;
 
-var _messageService = new EasyQueueService();
+var configuration = new ConfigurationBuilder()
+     .AddJsonFile($"appsettings.json");
+
+var config = configuration.Build();
+
+var _messageService = new EasyQueueService(config);
 await _messageService.SendReceiveReceiveAsync();
 
 Console.WriteLine("Hello, World!");

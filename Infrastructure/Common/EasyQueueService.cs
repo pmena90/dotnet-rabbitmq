@@ -2,14 +2,22 @@
 using Domain.Common;
 using Domain.Entities;
 using EasyNetQ;
+using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Common
 {
     public class EasyQueueService : IMessageService
     {
+        private readonly IConfiguration _configuration;
+
+        public EasyQueueService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public async Task SendReceiveSendAsync(ICustomMessage message)
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            using (var bus = GetBusClient())
             {
                 await bus.SendReceive.SendAsync("my.paymentsqueue", message);
 
@@ -19,7 +27,7 @@ namespace Infrastructure.Common
 
         public async Task SendReceiveReceiveAsync()
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            using (var bus = GetBusClient())
             {
                 await bus.SendReceive.ReceiveAsync("my.paymentsqueue", x => x
                     .Add<TextMessage>(HandleTextMsg)
@@ -33,7 +41,7 @@ namespace Infrastructure.Common
 
         public async Task RpcRequestAsync(RpcRequestMessage message)
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            using (var bus = GetBusClient())
             {
                 var task = bus.Rpc.RequestAsync<RpcRequestMessage, ResponseMessage>(message);
 
@@ -47,7 +55,7 @@ namespace Infrastructure.Common
 
         public async Task RpcRespondAsync()
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            using (var bus = GetBusClient())
             {
                 await bus.Rpc.RespondAsync<RpcRequestMessage, ResponseMessage>(Responder);
 
@@ -58,13 +66,12 @@ namespace Infrastructure.Common
 
         public async Task PubSubPublishAsync(ICustomMessage message, string topic = "")
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            using (var bus = GetBusClient())
             {
                 if (!string.IsNullOrEmpty(topic))
                 {
                     await bus.PubSub.PublishAsync(message, topic);
                     Console.WriteLine("***PubSub Topic*** published msg");
-
                 }
 
                 await bus.PubSub.PublishAsync(message).ContinueWith(task =>
@@ -83,7 +90,7 @@ namespace Infrastructure.Common
 
         public async Task PubSubSubscribeAsync(string receiverId, string topic = "")
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            using (var bus = GetBusClient())
             {
                 if (!string.IsNullOrEmpty(topic))
                 {
@@ -107,6 +114,13 @@ namespace Infrastructure.Common
                 Console.WriteLine("***PubSub*** Listening for messages. Hit <return> to quit");
                 Console.ReadLine();
             }
+        }
+
+        private IBus GetBusClient()
+        {
+            var connectionString = _configuration.GetConnectionString("conn1");
+
+            return RabbitHutch.CreateBus(connectionString);
         }
 
         private static void HandleAllMsg(ICustomMessage message)
