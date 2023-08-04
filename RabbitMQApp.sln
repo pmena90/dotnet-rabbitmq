@@ -11,11 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{8822071F-531D-4A73-804F-92BD3035348D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyNetQ_Receiver", "EasyNetQ_Receiver\EasyNetQ_Receiver.csproj", "{1CFB9243-6E6D-435D-8D06-479495BC276F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{1814F3D3-BC97-4B52-B7A1-5779434A6DAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyNetQ_Rpc_Receiver", "EasyNetQ_Rpc_Receiver\EasyNetQ_Rpc_Receiver.csproj", "{B82C7721-10C8-46BA-907E-2259C7B63ED7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyNetQ_Rpc_Receiver", "EasyNetQ_Rpc_Receiver\EasyNetQ_Rpc_Receiver.csproj", "{B82C7721-10C8-46BA-907E-2259C7B63ED7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyNetQ_SendReceive_Receiver", "EasyNetQ_SendReceive_Receiver\EasyNetQ_SendReceive_Receiver.csproj", "{7A566245-BA80-4868-A85F-B9F45DC2C1DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyNetQ_PubSub_Receiver", "EasyNetQ_PubSub_Receiver\EasyNetQ_PubSub_Receiver.csproj", "{08418473-BF17-4E9A-AE60-8CB6A4EBF8DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,22 +41,27 @@ Global
 		{8822071F-531D-4A73-804F-92BD3035348D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8822071F-531D-4A73-804F-92BD3035348D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8822071F-531D-4A73-804F-92BD3035348D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1CFB9243-6E6D-435D-8D06-479495BC276F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1CFB9243-6E6D-435D-8D06-479495BC276F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1CFB9243-6E6D-435D-8D06-479495BC276F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1CFB9243-6E6D-435D-8D06-479495BC276F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B82C7721-10C8-46BA-907E-2259C7B63ED7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B82C7721-10C8-46BA-907E-2259C7B63ED7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B82C7721-10C8-46BA-907E-2259C7B63ED7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B82C7721-10C8-46BA-907E-2259C7B63ED7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A566245-BA80-4868-A85F-B9F45DC2C1DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A566245-BA80-4868-A85F-B9F45DC2C1DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A566245-BA80-4868-A85F-B9F45DC2C1DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A566245-BA80-4868-A85F-B9F45DC2C1DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08418473-BF17-4E9A-AE60-8CB6A4EBF8DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08418473-BF17-4E9A-AE60-8CB6A4EBF8DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08418473-BF17-4E9A-AE60-8CB6A4EBF8DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08418473-BF17-4E9A-AE60-8CB6A4EBF8DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{719FC969-8B15-4B0E-BD37-6BB2CEEA4ABA} = {1814F3D3-BC97-4B52-B7A1-5779434A6DAB}
-		{1CFB9243-6E6D-435D-8D06-479495BC276F} = {1814F3D3-BC97-4B52-B7A1-5779434A6DAB}
 		{B82C7721-10C8-46BA-907E-2259C7B63ED7} = {1814F3D3-BC97-4B52-B7A1-5779434A6DAB}
+		{7A566245-BA80-4868-A85F-B9F45DC2C1DD} = {1814F3D3-BC97-4B52-B7A1-5779434A6DAB}
+		{08418473-BF17-4E9A-AE60-8CB6A4EBF8DC} = {1814F3D3-BC97-4B52-B7A1-5779434A6DAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EF8DD39-D919-458B-A0E8-94E527FACEEB}

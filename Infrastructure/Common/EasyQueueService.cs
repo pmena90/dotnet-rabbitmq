@@ -7,6 +7,30 @@ namespace Infrastructure.Common
 {
     public class EasyQueueService : IMessageService
     {
+        public async Task SendReceiveSendAsync(ICustomMessage message)
+        {
+            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            {
+                await bus.SendReceive.SendAsync("my.paymentsqueue", message);
+
+                Console.WriteLine("***SendReceive*** sent");
+            }
+        }
+
+        public async Task SendReceiveReceiveAsync()
+        {
+            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
+            {
+                await bus.SendReceive.ReceiveAsync("my.paymentsqueue", x => x
+                    .Add<TextMessage>(HandleTextMsg)
+                    .Add<CardPaymentRequestMessage>(HandleCardMsg)
+                );
+
+                Console.WriteLine("***SendReceive*** Listening for messages. Hit <return> to quit");
+                Console.ReadLine();
+            }
+        }
+
         public async Task RpcRequestAsync(RpcRequestMessage message)
         {
             using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
@@ -27,20 +51,27 @@ namespace Infrastructure.Common
             {
                 await bus.Rpc.RespondAsync<RpcRequestMessage, ResponseMessage>(Responder);
 
-                Console.WriteLine("Listening for messages. Hit <return> to quit");
+                Console.WriteLine("***RPC*** Listening for messages. Hit <return> to quit");
                 Console.ReadLine();
             }
         }
 
-        public async Task PublishAsync(ICustomMessage message)
+        public async Task PubSubPublishAsync(ICustomMessage message, string topic = "")
         {
             using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
             {
+                if (!string.IsNullOrEmpty(topic))
+                {
+                    await bus.PubSub.PublishAsync(message, topic);
+                    Console.WriteLine("***PubSub Topic*** published msg");
+
+                }
+
                 await bus.PubSub.PublishAsync(message).ContinueWith(task =>
                 {
                     if (task.IsCompleted && !task.IsFaulted)
                     {
-                        Console.WriteLine("published msg");
+                        Console.WriteLine("***PubSub*** published msg");
                     }
                     else
                     {
@@ -50,13 +81,17 @@ namespace Infrastructure.Common
             }
         }
 
-        public async Task ReceiveAsync(string receiverId)
+        public async Task PubSubSubscribeAsync(string receiverId, string topic = "")
         {
             using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
             {
+                if (!string.IsNullOrEmpty(topic))
+                {
+                    await bus.PubSub.SubscribeAsync<ICustomMessage>(receiverId, HandleAllMsg, x => x.WithTopic("topic"));
+                }
                 await bus.PubSub.SubscribeAsync<ICustomMessage>(receiverId, message => Task.Factory.StartNew(() =>
                 {
-                    HandleTextMsg(message);
+                    HandleAllMsg(message);
                 }).ContinueWith(task =>
                 {
                     if (task.IsCompleted && !task.IsFaulted)
@@ -69,34 +104,44 @@ namespace Infrastructure.Common
                     }
                 }));
 
-                Console.WriteLine("Listening for messages. Hit <return> to quit");
+                Console.WriteLine("***PubSub*** Listening for messages. Hit <return> to quit");
                 Console.ReadLine();
             }
         }
 
-        private static void HandleTextMsg(ICustomMessage message)
+        private static void HandleAllMsg(ICustomMessage message)
         {
             var textMessage = message as TextMessage;
             var cardMessage = message as CardPaymentRequestMessage;
 
             if (cardMessage != null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Got Message: CardHolderName {0}, CardNumber {1}, ExpiryDate {2}, Amount {3}",
-                    cardMessage.CardHolderName, cardMessage.CardNumber, cardMessage.ExpiryDate, cardMessage.Amount);
-                Console.ResetColor();
+                HandleCardMsg(cardMessage);
             }
             else if (textMessage != null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Got Message: {0} ", textMessage.Text);
-                Console.ResetColor();
+                HandleTextMsg(textMessage);
             }
+        }
+
+        private static void HandleTextMsg(TextMessage message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Got Message: {0} ", message.Text);
+            Console.ResetColor();
+        }
+
+        private static void HandleCardMsg(CardPaymentRequestMessage message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Got Message: CardHolderName {0}, CardNumber {1}, ExpiryDate {2}, Amount {3}",
+                message.CardHolderName, message.CardNumber, message.ExpiryDate, message.Amount);
+            Console.ResetColor();
         }
 
         private static ResponseMessage Responder(RpcRequestMessage message)
         {
-            Console.WriteLine("RPC Respond Activated");
+            Console.WriteLine("***RPC*** Respond Activated");
 
             return new ResponseMessage { AuthCode = "1234" };
         }

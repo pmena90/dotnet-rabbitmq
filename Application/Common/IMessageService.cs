@@ -1,11 +1,20 @@
 ﻿using Domain.Common;
+using Domain.Entities;
 
 namespace Application.Common
 {
     public interface IMessageService
     {
-        Task PublishAsync(ICustomMessage m);
+        Task SendReceiveSendAsync(ICustomMessage message);
 
-        Task ReceiveAsync(string receiverId);
+        Task SendReceiveReceiveAsync();
+
+        Task RpcRequestAsync(RpcRequestMessage message);
+
+        Task RpcRespondAsync();
+
+        Task PubSubPublishAsync(ICustomMessage m, string topic = "");
+
+        Task PubSubSubscribeAsync(string receiverId, string topic = "");
     }
 }
