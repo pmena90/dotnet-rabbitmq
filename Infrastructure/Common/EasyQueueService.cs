@@ -9,22 +9,26 @@ namespace Infrastructure.Common
     {
         public async Task RpcRequestAsync(RpcRequestMessage message)
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest;timeout=10"))
+            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
             {
-                var response = await bus.Rpc.RequestAsync<RpcRequestMessage, ResponseMessage>(message);
+                var task = bus.Rpc.RequestAsync<RpcRequestMessage, ResponseMessage>(message);
 
-                Console.WriteLine("RPC Request Response:");
-                Console.WriteLine(response.AuthCode);
+                await task.ContinueWith(x =>
+                {
+                    Console.WriteLine("RPC Request Response:");
+                    Console.WriteLine(x.Result.AuthCode);
+                });
             }
         }
 
         public async Task RpcRespondAsync()
         {
-            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest;"))
+            using (var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest"))
             {
                 await bus.Rpc.RespondAsync<RpcRequestMessage, ResponseMessage>(Responder);
 
-                Console.WriteLine("RPC Response Send:");
+                Console.WriteLine("Listening for messages. Hit <return> to quit");
+                Console.ReadLine();
             }
         }
 
@@ -92,6 +96,8 @@ namespace Infrastructure.Common
 
         private static ResponseMessage Responder(RpcRequestMessage message)
         {
+            Console.WriteLine("RPC Respond Activated");
+
             return new ResponseMessage { AuthCode = "1234" };
         }
     }

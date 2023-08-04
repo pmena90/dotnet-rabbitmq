@@ -28,7 +28,7 @@ var m2 = new CardPaymentRequestMessage
 await _messageService.PublishAsync(m2);
 
 // RPC pattern
-var message = new TextMessage
+var message = new RpcRequestMessage
 {
     Id = 111,
     Text = "Hello waitting response",
